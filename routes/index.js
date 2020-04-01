@@ -1,8 +1,8 @@
-var express = require('express');
+const express = require('express');
 const Posts = require('../model/mongodb')
 const crypto = require("crypto");
 
-var router = express.Router();
+const router = express.Router();
 
 let admin_user = null; //100
 // let admin_user = 100

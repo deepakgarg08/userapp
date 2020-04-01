@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="jquery-3.4.1.min.js"></script>
+    <title>Service Mitra: Main</title>
+    <style>
+body {
+        background-image: url("resource/2.jpg");
+         /* Full height */
+
+  background-repeat: no-repeat;
+  height: 100%;
+  
+
+  /* Center and scale the image nicely */
+  background-position: center;
+background-size: cover;
+  
+  
+    }
+    button{
+  background-color: rgba(255, 0, 0, 0.8);
+  color:white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+input[type=text] {
+    padding: 12px 20px;
+    margin: 4px 2px;
+  cursor: pointer;
+  border: 2px solid ;
+  border-radius: 4px;
+}
+
+        table {
+            font-family: arial, sans-serif;
+            /*border-collapse: collapse;*/
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #000000;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+
+        img:hover {
+            background-color: #a0ffb3;
+        }
+
+         
+
+    </style>
+</head>
+<body>
+
+<h1>Welcome to Service Mitra</h1>
+<h4>by Lalakishop</h4>
+<div>
+    <nav>
+        <button onclick="add()"> ADD</button>
+        <button onclick="update()">UPDATE</button>
+        <button onclick="deleteCustomer()">DELETE</button>
+        <button onclick="readall()">REFRESH</button>
+        <span style="float: right">
+        <label for="iduser" ></label>
+        <input type="text" id="iduser" name="iduser" placeholder="Enter Mobile or USERNAME">
+        <button onclick="readone()">SEARCH</button>
+        </span>
+    </nav>
+</div>
+
+<div>
+
+    <h2 id="ncustomers">All customers list</h2>
+
+    <div id="mainframe" style="display: none">
+
+        <table id="mainTable" class="mTable">
+            <tr>
+                <th>Serial No.</th>
+                <th>UserName</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Address</th>
+                <th>Description</th>
+                <th>Extras</th>
+                <th>created_date</th>
+                <th>modified_date</th>
+                <th>Products</th>
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    let Total_No_of_Records
+    $(document).ready(readall());
+
+    function add() {
+        window.open("createuser.html", "_blank");
+    }
+
+    function update() {
+        window.open("updateuser.html", "_blank");
+    }
+
+    function readone() {
+        console.log("submit button is triggered");
+        var id = $('#iduser').val().trim()
+        $.ajax({
+            async: false,
+            url: 'http://127.0.0.1:3000/read/' + id,
+            type: 'GET',
+            success: function (result) {
+                console.log("check response result ", result)
+                if (Array.isArray(result)) {
+                    result = result[0]
+                }
+                ncustomers.innerHTML = "Search result"
+                let tb = document.getElementById('mainTable');
+                while (tb.rows.length > 1) {
+                    tb.deleteRow(1);
+                }
+                displayList(result)
+            }
+        });
+    }
+
+
+    function readall() {
+        let tb = document.getElementById('mainTable');
+        while (tb.rows.length > 1) {
+            tb.deleteRow(1);
+        }
+        $.ajax({
+            async: true,
+            url: 'http://127.0.0.1:3000/readall',
+            type: 'GET',
+            // data: formjson,
+            // dataType: 'JSON',
+            success: function (res) {
+                console.log("check response result ", res)
+                // console.log("check response result ", res.Records.length)
+                if (res === "you are not authorized") {
+                    ncustomers.innerHTML = res
+                } else {
+                    mainframe.style.display = "block";
+                    Total_No_of_Records = res.Total_No_of_Records
+                    ncustomers.innerHTML = "All customers list   " + Total_No_of_Records
+
+                    for (let i = 1; i < res.Records.length; i++) {
+                        displayList(res.Records[i],i)
+                    }
+                }
+            }
+        });
+    }
+
+    function deleteCustomer() {
+        window.open("delete.html", "_blank");
+    }
+
+    function displayList(data,i) {
+
+        console.log("let Total_No_of_Records", Total_No_of_Records)
+        let row = document.getElementById("mainTable").insertRow();
+        let cell1 = row.insertCell(0);
+        let cell2 = row.insertCell(1);
+        let elLink = document.createElement('a');
+        let href = 'productinfo.html?&username=' + data.username;
+        elLink.href = href;
+        elLink.innerHTML ='<img src = "inventory.png" height="50%" >';
+
+
+        let cell3 = row.insertCell(2);
+        let cell4 = row.insertCell(3);
+        let cell5 = row.insertCell(4);
+        let cell6 = row.insertCell(5);
+        let cell7 = row.insertCell(6);
+        let cell8 = row.insertCell(7);
+        let cell9 = row.insertCell(8);
+        let cell10 = row.insertCell(9);
+
+        console.log("data.products", data.products)
+
+        if (data.extras === undefined || data.extras === "") {
+            data.extras = "-"
+        }
+
+        if (data.description === undefined) {
+            data.description = "-"
+        }
+        if (data.modified_date === undefined) {
+            data.modified_date = "-";
+        }
+        if (data.address === undefined) {
+            data.address = "-";
+        }
+
+        cell1.innerHTML = i
+        cell2.innerHTML = data.username
+        cell3.innerHTML = data.name
+        cell4.innerHTML = data.mobile
+        cell5.innerHTML = data.address
+        cell6.innerHTML = data.description
+        cell7.innerHTML = data.extras
+        cell8.innerHTML = data.created_date
+        cell9.innerHTML = data.modified_date
+        // cell10.innerHTML = '<img src = "inventory.png" height="50%" >'
+        cell10.appendChild(elLink);
+
+
+    }
+
+    $("#iduser").keyup(function () {
+        if (!this.value) {
+            readall()
+        }
+    });
+
+
+    
+
+</script>
+
+
+</body>
+</html>

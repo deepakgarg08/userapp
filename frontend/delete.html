@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="jquery-3.4.1.min.js"></script>
+
+    <title>Service Mitra: Delete User</title>
+</head>
+<style type="text/css">
+body {
+
+    background-image: url("resource/2.jpg");
+         /* Full height */
+    background-repeat: no-repeat;
+    height: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-size: cover;
+  }
+    input[type=text] {
+    padding: 6px 20px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: 2px solid ;
+    border-radius: 4px;
+}
+
+
+button , input[type=submit]
+{
+    background-color: rgba(255, 0, 0, 0.8); /* red with opacity */
+
+  color:white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+</style>
+<body>
+<div>
+    <h2 id ="deleteit"></h2>
+    <form onsubmit="return false">
+    <button onclick="window.location.href='main.html'">Home </button><br><br><br>
+
+    <label for="id"></label><br>
+    <input type="text" id="id" name="id" placeholder=" Enter Username"><br>
+    <input type="submit" value="Submit" onclick="onSubmit()">
+</form>
+</div>
+<script>
+    function onSubmit() {
+        console.log("submit button is triggered");
+        let id = $('#id').val().trim()
+        $.ajax({
+            async: false,
+            url: 'http://127.0.0.1:3000/delete/'+ id,
+            type: 'DELETE',
+            success: function (result) {
+                console.log("check response result ", result)
+                if (result === "Invalid username or id") {
+                    alert(result)
+                    setTimeout(()=> window.location.reload(),2000)
+
+                }else if(result === "you are not authorized"){
+                    alert(result)
+                    window.location.href = "index.html"
+                }
+                else{
+                    deleteit.innerHTML = result
+                    // setTimeout(()=> window.location.href = "main.html",2000)
+                    // window.location.href = "main.html"
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
